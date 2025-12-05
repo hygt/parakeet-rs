@@ -42,6 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let use_eou = args.len() > 2 && args[2] == "eou";
 
     // Load audio
+    println!("Loading audio: {audio_path}");
     let mut reader = hound::WavReader::open(audio_path)?;
     let spec = reader.spec();
 
@@ -129,8 +130,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let text = model.transcribe_chunk(&chunk_vec)?;
         if !text.is_empty() {
-            print!("{}", text);
-            std::io::stdout().flush()?;
+            print!("{text}");
+            std::io::Write::flush(&mut std::io::stdout())?;
+            full_text.push_str(&text);
         }
     }
 
@@ -138,7 +140,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for _ in 0..3 {
         let text = model.transcribe_chunk(&vec![0.0; chunk_size])?;
         if !text.is_empty() {
-            print!("{}", text);
+            print!("{text}");
+            std::io::Write::flush(&mut std::io::stdout())?;
+            full_text.push_str(&text);
         }
     }
 
