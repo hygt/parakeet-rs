@@ -11,7 +11,7 @@ use ndarray::{s, Array1, Array2, Array4};
 use std::path::{Path, PathBuf};
 
 /// Canary 1B multilingual ASR/AST model supporting 25 European languages https://huggingface.co/nvidia/canary-1b-v2
-/// 
+///
 /// Canary requires both source and target languages:
 /// - Transcription (ASR): source="sv", target="sv" → Swedish audio → Swedish text
 /// - Translation (AST): source="sv", target="en" → Swedish audio → English text

@@ -37,14 +37,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let model_type = args.get(2).map(|s| s.as_str()).unwrap_or("ctc");
+    let path = env::home_dir().unwrap().join(".cache/huggingface/hub/models--istupakov--canary-1b-v2-onnx/snapshots/5ebc1520cef7b6b318b3526ad17adbfe00bc1bfc");
 
     // Canary model (multilingual ASR/AST, 25 European languages)
     if model_type == "canary" {
-        let mut canary = ParakeetCanary::from_pretrained("./canary", None)?;
+        let mut canary = ParakeetCanary::from_pretrained(path, None)?;
 
         // Set source and target languages (both default to "en")
         // Transcription: canary.set_language("sv");  // Swedish → Swedish
         // Translation: canary.set_source_language("sv"); canary.set_target_language("en"); // Swedish → English
+        canary.set_source_language("en");
+        canary.set_target_language("en");
 
         let result = canary.transcribe_file(audio_path, Some(TimestampMode::Sentences))?;
         println!("{}", result.text);

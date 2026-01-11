@@ -127,10 +127,10 @@ impl LatencyMode {
     /// Number of mel spectrogram frames per encoder chunk.
     pub const fn chunk_mel_frames(self) -> usize {
         match self {
-            Self::Normal => 112,  // 14 * 8
-            Self::Low => 56,      //  7 * 8
-            Self::VeryLow => 16,  //  2 * 8
-            Self::Ultra => 8,     //  1 * 8
+            Self::Normal => 112, // 14 * 8
+            Self::Low => 56,     //  7 * 8
+            Self::VeryLow => 16, //  2 * 8
+            Self::Ultra => 8,    //  1 * 8
         }
     }
 
@@ -375,7 +375,8 @@ impl MultitalkerASR {
         let is_first_chunk = self.chunk_idx == 0;
         let main_start = processed_mel_frames;
 
-        let mel_chunk = self.build_mel_chunk(&full_mel, main_start, is_first_chunk, expected_size)?;
+        let mel_chunk =
+            self.build_mel_chunk(&full_mel, main_start, is_first_chunk, expected_size)?;
         let chunk_length = expected_size;
 
         let chunk_frame_offset = self.chunk_idx * self.config.latency_mode.encoded_frames();
@@ -744,8 +745,7 @@ impl Transcriber for MultitalkerASR {
             )?;
             self.speakers[0].encoder_cache = new_cache;
 
-            let chunk_frame_offset =
-                chunk_idx * self.config.latency_mode.encoded_frames();
+            let chunk_frame_offset = chunk_idx * self.config.latency_mode.encoded_frames();
             let tokens =
                 self.decode_chunk_for_speaker(0, &encoded, enc_len as usize, chunk_frame_offset)?;
             self.speakers[0].accumulated_tokens.extend(tokens);

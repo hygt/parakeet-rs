@@ -221,8 +221,7 @@ impl Sortformer {
     ) -> Result<Self> {
         let config_to_use = execution_config.unwrap_or_default();
 
-        let mut builder = config_to_use
-            .apply_to_session_builder(Session::builder()?)?;
+        let mut builder = config_to_use.apply_to_session_builder(Session::builder()?)?;
         let session = builder.commit_from_file(model_path.as_ref())?;
 
         // Read streaming constants from ONNX metadata (fallback to defaults)
@@ -742,7 +741,10 @@ impl Sortformer {
         let per_spk = self.spkcache_len / NUM_SPEAKERS;
         if per_spk <= SPKCACHE_SIL_FRAMES_PER_SPK {
             // truncate if cache too small for compression
-            self.spkcache = self.spkcache.slice(s![.., ..self.spkcache_len, ..]).to_owned();
+            self.spkcache = self
+                .spkcache
+                .slice(s![.., ..self.spkcache_len, ..])
+                .to_owned();
             if let Some(ref p) = self.spkcache_preds {
                 self.spkcache_preds = Some(p.slice(s![.., ..self.spkcache_len, ..]).to_owned());
             }
@@ -1057,8 +1059,8 @@ impl Sortformer {
                 } else if p < self.config.offset && in_seg {
                     in_seg = false;
 
-                    let start_s = (seg_start as u64 * samples_per_frame)
-                        .saturating_sub(pad_onset_samples);
+                    let start_s =
+                        (seg_start as u64 * samples_per_frame).saturating_sub(pad_onset_samples);
                     let end_s = t as u64 * samples_per_frame + pad_offset_samples;
 
                     if end_s - start_s >= min_dur_on_samples {
@@ -1073,8 +1075,8 @@ impl Sortformer {
 
             // Handle segment at end
             if in_seg {
-                let start_s = (seg_start as u64 * samples_per_frame)
-                    .saturating_sub(pad_onset_samples);
+                let start_s =
+                    (seg_start as u64 * samples_per_frame).saturating_sub(pad_onset_samples);
                 let end_s = num_frames as u64 * samples_per_frame + pad_offset_samples;
 
                 if end_s - start_s >= min_dur_on_samples {

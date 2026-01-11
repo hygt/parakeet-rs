@@ -26,7 +26,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(not(feature = "sortformer"))]
     {
         eprintln!("Error: This example requires the 'sortformer' feature.");
-        eprintln!("Run with: cargo run --example streaming_diarization --features sortformer <audio.wav>");
+        eprintln!(
+            "Run with: cargo run --example streaming_diarization --features sortformer <audio.wav>"
+        );
         return Err("sortformer feature not enabled".into());
     }
 
@@ -83,7 +85,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let feed_chunk_size = 320; // 20ms at 16kHz
         let mut total_segments = 0;
 
-        println!("\nStreaming diarization (feeding {}ms chunks):", feed_chunk_size * 1000 / 16_000);
+        println!(
+            "\nStreaming diarization (feeding {}ms chunks):",
+            feed_chunk_size * 1000 / 16_000
+        );
         println!("{}", "-".repeat(60));
 
         for chunk in audio.chunks(feed_chunk_size) {

@@ -23,7 +23,7 @@ impl CanaryModel {
         let session_builder = Session::builder()
             .map_err(|e| Error::Model(format!("Failed to create session builder: {e}")))?;
 
-        let session_builder = exec_config.apply_to_session_builder(session_builder)?;
+        let mut session_builder = exec_config.apply_to_session_builder(session_builder)?;
 
         let encoder = session_builder
             .clone()
