@@ -91,3 +91,22 @@ pub use nemotron::{Nemotron, SentencePieceVocab};
 pub use multitalker::{
     LatencyMode, MultitalkerASR, MultitalkerConfig, SpeakerTranscript, WordTimestamp,
 };
+
+// On macOS with GPU execution providers (WebGPU/Metal, CoreML), the Metal runtime
+// can be torn down by the OS before ORT's ReleaseSession runs during process exit,
+// causing a SIGSEGV. We register an atexit handler that exits immediately via
+// _exit(0), skipping the problematic cleanup. The OS reclaims all GPU resources.
+#[cfg(all(target_os = "macos", any(feature = "webgpu", feature = "coreml")))]
+#[used]
+static _REGISTER_GPU_CLEANUP: fn() = {
+    extern "C" fn flush_and_exit() {
+        unsafe {
+            libc::fflush(std::ptr::null_mut());
+            libc::_exit(0);
+        }
+    }
+    fn init() {
+        unsafe { libc::atexit(flush_and_exit) };
+    }
+    init
+};

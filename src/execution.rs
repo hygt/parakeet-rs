@@ -8,31 +8,56 @@ use ort::session::builder::SessionBuilder;
 // GPU providers (CUDA, TensorRT, MIGraphX) offer 5-10x speedup but require specific hardware.
 // All GPU providers automatically fall back to CPU if they fail.
 //
+// On macOS, the default is WebGPU (uses Metal) if the "webgpu" feature is enabled,
+// otherwise CoreML if the "coreml" feature is enabled, falling back to CPU.
+//
 // Note: CoreML EP currently runs slower than CPU for Sortformer/Parakeet models because
 // the ONNX graphs have dynamic input shapes, preventing CoreML from building optimised
 // execution plans for ANE/GPU. CoreML claims nodes but runs them on CPU with overhead.
 //
 // WebGPU is experimental and may produce incorrect results.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExecutionProvider {
-    #[default]
     Cpu,
+    #[cfg(feature = "webgpu")]
+    WebGPU,
+    #[cfg(feature = "coreml")]
+    CoreML,
     #[cfg(feature = "cuda")]
     Cuda,
     #[cfg(feature = "tensorrt")]
     TensorRT,
-    #[cfg(feature = "coreml")]
-    CoreML,
     #[cfg(feature = "directml")]
     DirectML,
     #[cfg(feature = "migraphx")]
     MIGraphX,
     #[cfg(feature = "openvino")]
     OpenVINO,
-    #[cfg(feature = "webgpu")]
-    WebGPU,
     #[cfg(feature = "nnapi")]
     NNAPI,
+}
+
+impl Default for ExecutionProvider {
+    fn default() -> Self {
+        Self::platform_default()
+    }
+}
+
+impl ExecutionProvider {
+    #[cfg(all(target_os = "macos", feature = "webgpu"))]
+    fn platform_default() -> Self {
+        ExecutionProvider::WebGPU
+    }
+
+    #[cfg(all(target_os = "macos", feature = "coreml", not(feature = "webgpu")))]
+    fn platform_default() -> Self {
+        ExecutionProvider::CoreML
+    }
+
+    #[cfg(not(all(target_os = "macos", any(feature = "webgpu", feature = "coreml"))))]
+    fn platform_default() -> Self {
+        ExecutionProvider::Cpu
+    }
 }
 
 #[derive(Clone)]
